@@ -1,7 +1,9 @@
 import { ShoppingCartSimple } from 'phosphor-react'
-import { ChangeEvent, useContext, useState } from 'react'
+import { ChangeEvent, FormEvent, useContext, useState } from 'react'
 import { NumberInput } from '../../../../components/NumberInput/Index'
 import { CartContext } from '../../../../contexts/Cart'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as zod from 'zod'
 import {
   Card,
   CardDescription,
@@ -12,6 +14,7 @@ import {
   Tag,
   TagList,
 } from './style'
+import { FormProvider, useForm } from 'react-hook-form'
 
 export interface CoffeCatalog {
   id: string
@@ -21,6 +24,15 @@ export interface CoffeCatalog {
   tags: string[]
   price: string
 }
+
+const cardProductFormValidationSchema = zod.object({
+  productCount: zod
+    .number()
+    .min(1, 'O valor informado deve ser maior que zero unidades')
+    .max(99, 'O valor máximo deve possuir no máximo 99 unidades'),
+})
+
+type CardProductFormData = zod.infer<typeof cardProductFormValidationSchema>
 
 export function CoffeCard() {
   const { addNewItemOnCart } = useContext(CartContext)
@@ -34,19 +46,23 @@ export function CoffeCard() {
     tags: ['Tradicional', 'Com Leite', 'Gelado'],
   } as CoffeCatalog
 
-  const [cartCount, setCartCount] = useState(0)
+  const cartProductForm = useForm<CardProductFormData>({
+    resolver: zodResolver(cardProductFormValidationSchema),
+    defaultValues: {
+      productCount: 0,
+    },
+  })
 
-  function handleChangeCombo(event: ChangeEvent<HTMLInputElement>) {
-    setCartCount(event.target.value === '' ? 0 : parseInt(event.target.value))
-  }
+  const { handleSubmit, reset } = cartProductForm
 
-  function handleSubmit() {
+  function handleAddProductsOnCart(data: CardProductFormData) {
     addNewItemOnCart({
       id: coffe.id,
       imageUrl: coffe.img,
       name: coffe.title,
-      quantity: 1,
+      quantity: data.productCount,
     })
+    reset()
   }
 
   return (
@@ -59,16 +75,20 @@ export function CoffeCard() {
       </TagList>
       <CardTitle>{coffe.title}</CardTitle>
       <CardDescription>{coffe.description}</CardDescription>
-      <CardFooter>
-        <CardPrice>
-          <span>{'R$ '}</span>
-          {coffe.price}
-        </CardPrice>
-        <NumberInput step={1} min={1} onChange={handleChangeCombo} max={10} />
-        <CartButtonSubmit onClick={handleSubmit}>
-          <ShoppingCartSimple size={22} weight="fill" />
-        </CartButtonSubmit>
-      </CardFooter>
+      <form action="" onSubmit={handleSubmit(handleAddProductsOnCart)}>
+        <CardFooter>
+          <CardPrice>
+            <span>{'R$ '}</span>
+            {coffe.price}
+          </CardPrice>
+          <FormProvider {...cartProductForm}>
+            <NumberInput name="productCount" step={1} min={0} max={10} />
+            <CartButtonSubmit type="submit">
+              <ShoppingCartSimple size={22} weight="fill" />
+            </CartButtonSubmit>
+          </FormProvider>
+        </CardFooter>
+      </form>
     </Card>
   )
 }

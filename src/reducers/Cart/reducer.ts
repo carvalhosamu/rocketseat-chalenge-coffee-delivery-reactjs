@@ -18,8 +18,6 @@ export function cartReducer(state: CartState, action: any): CartState {
     case ActionTypes.ADD_NEW_ITEMCART:
       return produce(state, (draft) => {
         draft.cartNumberItem += action.payload.newItem.quantity
-        console.log(action)
-        console.log(state)
         const itemIndex = state.itens.findIndex(
           (item) => action.payload.newItem.id === item.id,
         )

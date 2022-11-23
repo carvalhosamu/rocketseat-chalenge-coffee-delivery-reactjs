@@ -34,7 +34,7 @@ export function SelectedCoffe() {
           <div>
             <h5>{product.title}</h5>
             <ProductActions>
-              <NumberInput />
+              {/* <NumberInput /> */}
               <RemoveButton>
                 <Trash size={16} />
                 Remover
