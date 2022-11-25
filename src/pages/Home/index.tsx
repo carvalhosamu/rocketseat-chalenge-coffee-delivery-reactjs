@@ -9,8 +9,16 @@ import {
 import bannerImage from '../../assets/BannerImage.png'
 import { CoffeCard } from './components/CoffeCard'
 import { Coffee, Package, ShoppingCart, Timer } from 'phosphor-react'
+import { useEffect, useState } from 'react'
+import { CoffeCatalog } from './models'
+import { getProducts } from './services'
 
 export function Home() {
+  const [coffes, setCoffes] = useState<CoffeCatalog[]>([])
+  useEffect(() => {
+    setCoffes(getProducts())
+  }, [])
+
   return (
     <>
       <Banner>
@@ -48,12 +56,9 @@ export function Home() {
       <ProductSection className="wrapper">
         <h2>Nossos Cafés</h2>
         <ProductList>
-          <CoffeCard />
-          <CoffeCard />
-          <CoffeCard />
-          <CoffeCard />
-          <CoffeCard />
-          <CoffeCard />
+          {coffes.map((c) => (
+            <CoffeCard coffe={c} key={c.id} />
+          ))}
         </ProductList>
       </ProductSection>
     </>

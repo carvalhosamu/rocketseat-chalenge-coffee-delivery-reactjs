@@ -15,15 +15,7 @@ import {
   TagList,
 } from './style'
 import { FormProvider, useForm } from 'react-hook-form'
-
-export interface CoffeCatalog {
-  id: string
-  img: string
-  title: string
-  description: string
-  tags: string[]
-  price: string
-}
+import { CoffeCatalog } from '../../models'
 
 const cardProductFormValidationSchema = zod.object({
   productCount: zod
@@ -34,17 +26,12 @@ const cardProductFormValidationSchema = zod.object({
 
 type CardProductFormData = zod.infer<typeof cardProductFormValidationSchema>
 
-export function CoffeCard() {
-  const { addNewItemOnCart } = useContext(CartContext)
+interface CoffeCardProps {
+  coffe: CoffeCatalog
+}
 
-  const coffe = {
-    id: '12344',
-    img: 'images/Coffee.png',
-    title: 'Expresso Tradicional',
-    description: 'O tradicional café feito com água quente e grãos moídos',
-    price: '9,90',
-    tags: ['Tradicional', 'Com Leite', 'Gelado'],
-  } as CoffeCatalog
+export function CoffeCard({ coffe }: CoffeCardProps) {
+  const { addNewItemOnCart } = useContext(CartContext)
 
   const cartProductForm = useForm<CardProductFormData>({
     resolver: zodResolver(cardProductFormValidationSchema),
@@ -58,31 +45,40 @@ export function CoffeCard() {
   function handleAddProductsOnCart(data: CardProductFormData) {
     addNewItemOnCart({
       id: coffe.id,
-      imageUrl: coffe.img,
-      name: coffe.title,
+      img: coffe.img,
+      name: coffe.name,
       quantity: data.productCount,
+      price: coffe.price,
     })
     reset()
   }
 
   return (
     <Card>
-      <img src="images/Coffee.png" alt="" />
+      <img src={coffe.img} alt="" />
       <TagList>
         {coffe.tags.map((tag) => {
           return <Tag key={`${coffe.id}-${tag}`}>{tag}</Tag>
         })}
       </TagList>
-      <CardTitle>{coffe.title}</CardTitle>
+      <CardTitle>{coffe.name}</CardTitle>
       <CardDescription>{coffe.description}</CardDescription>
       <form action="" onSubmit={handleSubmit(handleAddProductsOnCart)}>
         <CardFooter>
           <CardPrice>
             <span>{'R$ '}</span>
-            {coffe.price}
+            {coffe.price.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+            })}
           </CardPrice>
           <FormProvider {...cartProductForm}>
-            <NumberInput name="productCount" step={1} min={0} max={10} />
+            <NumberInput
+              name="productCount"
+              readOnly={true}
+              step={1}
+              min={0}
+              max={10}
+            />
             <CartButtonSubmit type="submit">
               <ShoppingCartSimple size={22} weight="fill" />
             </CartButtonSubmit>

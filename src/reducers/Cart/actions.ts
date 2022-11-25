@@ -1,9 +1,9 @@
 import { CartItem } from './reducer'
 
 export enum ActionTypes {
-  ADD_NEW_ITEMCART = 'ADD_NEW_CYCLE',
-  REMOVE_ITEM_QUANTITY_CART = 'INTERRUPT_CURRENT_CYCLE',
-  DELETE_ITEM_CART = 'MARK_CURRENT_CYCLE_AS_FINISHED',
+  ADD_NEW_ITEMCART = 'ADD_NEW_ITEMCART',
+  UPDATE_ITEM_QUANTITY_CART = 'UPDATE_ITEM_QUANTITY_CART',
+  DELETE_ITEM_CART = 'DELETE_ITEM_CART',
 }
 
 export function addNewItemAction(newItem: CartItem) {
@@ -11,6 +11,16 @@ export function addNewItemAction(newItem: CartItem) {
     type: ActionTypes.ADD_NEW_ITEMCART,
     payload: {
       newItem,
+    },
+  }
+}
+
+export function updateItemQuantityAction(id: string, quantity: number) {
+  return {
+    type: ActionTypes.UPDATE_ITEM_QUANTITY_CART,
+    payload: {
+      id,
+      quantity,
     },
   }
 }

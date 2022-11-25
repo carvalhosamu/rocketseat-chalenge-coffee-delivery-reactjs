@@ -9,8 +9,16 @@ import {
 
 import deliveryIllustration from '../../assets/IllustrationConfirmOrder.png'
 import { CurrencyDollar, MapPin, Timer } from 'phosphor-react'
+import { useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+
+import history from 'history/browser'
 
 export function ConfirmOrder() {
+  const location = useLocation()
+
+  console.log(location.state)
+
   return (
     <ConfirmOrderContainer>
       <ConfirmOrderTitle>
@@ -23,9 +31,18 @@ export function ConfirmOrder() {
             <MapPin size={32} weight="fill" />
             <OrderItemText>
               <span>
-                Entrega em <strong>Rua João Daniel Martinelli, 102</strong>
+                Entrega em{' '}
+                <strong>
+                  {location.state.adress.adress}, {location.state.adress.number}
+                  {location.state.adress.complement
+                    ? ` - ${location.state.adress.complement}`
+                    : ''}
+                </strong>
               </span>
-              <span>Farrapos - Porto Alegre, RS</span>
+              <span>
+                {location.state.adress.district} - {location.state.adress.city},{' '}
+                {location.state.adress.state}
+              </span>
             </OrderItemText>
           </OrderItemDetail>
           <OrderItemDetail backgroundIconColor="yellow">
@@ -39,7 +56,7 @@ export function ConfirmOrder() {
             <CurrencyDollar size={32} />
             <OrderItemText>
               <span>Pagamento na entrega</span>
-              <strong>Cartão de Crédito</strong>
+              <strong>{location.state.payment}</strong>
             </OrderItemText>
           </OrderItemDetail>
         </ConfirmOrderBox>

@@ -26,7 +26,7 @@ export function DefaultLayout() {
               <MapPin size={22} weight="fill" />
               S. S. Paraíso MG
             </LocationButton>
-            <NavLink to="/confirm-order" title="Checkout">
+            <NavLink to="/checkout" title="Checkout">
               <CartButton>
                 <ShoppingCart size={22} weight="fill" />
                 <div className="counter">{cartNumberItem}</div>

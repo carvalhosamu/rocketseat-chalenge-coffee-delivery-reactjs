@@ -5,16 +5,19 @@ import {
   MapPinLine,
   Money,
 } from 'phosphor-react'
-import { NavLink } from 'react-router-dom'
+import { useContext, useState } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
+import { CartContext } from '../../contexts/Cart'
+import {
+  CheckoutFormAdress,
+  CheckoutFormAdressModel,
+} from './components/CheckoutFormAdress'
 import { SelectedCoffe } from './components/SelectedCoffe'
 import {
   CheckoutContainer,
-  CheckoutForm,
   CheckoutFormTitle,
   CheckoutContaineBox,
   CheckoutPaymentTitle,
-  PaymentOptions,
-  PaymentOption,
   MainContent,
   SideContent,
   CheckoutItensBox,
@@ -22,100 +25,131 @@ import {
   CheckoutTotal,
   SubmitButton,
 } from './style'
+import history from 'history/browser'
+
+import * as zod from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { PaymentOptions, PaymentType } from './components/PaymentOptions'
+import { CheckoutRequestModel } from './models'
 
 export function Checkout() {
+  const { itens } = useContext(CartContext)
+  const adressFormValidationSchema = zod.object({
+    zipCode: zod
+      .string({ required_error: 'O campo é obrigatório' })
+      .max(10, 'O valor máximo deve ser menor que 10 caracteres'),
+    adress: zod
+      .string({ required_error: 'O campo é obrigatório' })
+      .min(3)
+      .max(100, 'O valor máximo deve ser menor que 100 caracteres'),
+    city: zod
+      .string({ required_error: 'O campo é obrigatório' })
+      .min(5)
+      .max(50, 'O valor máximo deve ser menor que 50 caracteres'),
+    complement: zod.string().optional(),
+    district: zod
+      .string({ required_error: 'O campo é obrigatório' })
+      .min(5)
+      .max(20, 'O valor máximo deve ser menor que 20 caracteres'),
+    state: zod
+      .string({ required_error: 'O campo é obrigatório' })
+      .max(2, 'Infornme somente a sigla do estado'),
+    number: zod.string().optional(),
+  })
+
+  const cartProductForm = useForm<CheckoutFormAdressModel>({
+    resolver: zodResolver(adressFormValidationSchema),
+    defaultValues: {
+      adress: '',
+      city: '',
+      complement: '',
+      district: '',
+      state: '',
+      number: '',
+      zipCode: '',
+    },
+  })
+
+  const { handleSubmit } = cartProductForm
+  const [paymentType, setPaymentType] = useState(PaymentType.CREDIT_CARD)
+
+  function handleCreateNewRequest(data: CheckoutFormAdressModel) {
+    const requestData: CheckoutRequestModel = {
+      adress: data,
+      payment: paymentType,
+      itens: itens.map((item) => {
+        return {
+          id: item.id,
+          price: item.price,
+          quantity: item.quantity,
+        }
+      }),
+    }
+    history.push('/confirm-order', requestData)
+    history.go(0)
+  }
+
+  function handleChangePaymentMethod(type: PaymentType) {
+    setPaymentType(type)
+  }
+
   return (
-    <CheckoutContainer>
-      <MainContent>
-        <h2>Complete seu pedido</h2>
-        <CheckoutContaineBox>
-          <CheckoutFormTitle>
-            <MapPinLine size={22} />
-            <div>
-              <h3>Endereço de Entrega</h3>
-              <h4>Informe o endereço onde deseja receber seu pedido</h4>
-            </div>
-          </CheckoutFormTitle>
-          <CheckoutForm>
-            <input name="cep" id="cep" type="text" placeholder="CEP" />
-            <input
-              name="deliveryAdress"
-              id="deliveryAdress"
-              type="text"
-              placeholder="Endereço"
-            />
-            <input
-              name="deliveryAdressNumber"
-              id="deliveryAdressNumber"
-              type="text"
-              placeholder="Número"
-            />
-            <input
-              name="deliveryAdressComplement"
-              type="text"
-              placeholder="Complemento"
-            />
-            <input
-              name="deliveryAdressDistrict"
-              type="text"
-              placeholder="Bairro"
-            />
-            <input name="deliveryAdressCity" type="text" placeholder="Cidade" />
-            <input name="deliveryAdressState" type="text" placeholder="UF" />
-          </CheckoutForm>
-        </CheckoutContaineBox>
-        <CheckoutContaineBox>
-          <CheckoutPaymentTitle>
-            <CurrencyDollar size={22} />
-            <div>
-              <h3>Pagamento</h3>
-              <h4>
-                O pagamento é feito na entrega. Escolha a forma que deseja pagar
-              </h4>
-            </div>
-          </CheckoutPaymentTitle>
-          <PaymentOptions>
-            <PaymentOption selected={true}>
-              <CreditCard size={19} />
-              Cartão de Crédito
-            </PaymentOption>
-            <PaymentOption selected={false}>
-              <Bank size={19} />
-              Cartão de Débito
-            </PaymentOption>
-            <PaymentOption selected={false}>
-              <Money size={19} />
-              Dinheiro
-            </PaymentOption>
-          </PaymentOptions>
-        </CheckoutContaineBox>
-      </MainContent>
-      <SideContent>
-        <h2>Cafés Selecionados</h2>
-        <CheckoutItensBox>
-          <ProductList>
-            <SelectedCoffe />
-            <SelectedCoffe />
-          </ProductList>
-          <CheckoutTotal>
-            <div>
-              <span>Total de Itens</span>
-              <span>R$ 29,70</span>
-            </div>
-            <div>
-              <span>Entrega</span>
-              <span>R$ 3,50</span>
-            </div>
-            <div>
-              <span>Total</span>
-              <span>R$ 33,20</span>
-            </div>
-          </CheckoutTotal>
-          <NavLink to="/confirm-order">
-            <SubmitButton>Confirmar Pedido</SubmitButton>
-          </NavLink>
-        </CheckoutItensBox>
-      </SideContent>
-    </CheckoutContainer>
+    <form onSubmit={handleSubmit(handleCreateNewRequest)}>
+      <FormProvider {...cartProductForm}>
+        <CheckoutContainer>
+          <MainContent>
+            <h2>Complete seu pedido</h2>
+            <CheckoutContaineBox>
+              <CheckoutFormTitle>
+                <MapPinLine size={22} />
+                <div>
+                  <h3>Endereço de Entrega</h3>
+                  <h4>Informe o endereço onde deseja receber seu pedido</h4>
+                </div>
+              </CheckoutFormTitle>
+              <CheckoutFormAdress />
+            </CheckoutContaineBox>
+            <CheckoutContaineBox>
+              <CheckoutPaymentTitle>
+                <CurrencyDollar size={22} />
+                <div>
+                  <h3>Pagamento</h3>
+                  <h4>
+                    O pagamento é feito na entrega. Escolha a forma que deseja
+                    pagar
+                  </h4>
+                </div>
+              </CheckoutPaymentTitle>
+              <PaymentOptions onChange={handleChangePaymentMethod} />
+            </CheckoutContaineBox>
+          </MainContent>
+          <SideContent>
+            <h2>Cafés Selecionados</h2>
+            <CheckoutItensBox>
+              <ProductList>
+                {itens.map((product) => (
+                  <SelectedCoffe key={product.id} product={product} />
+                ))}
+              </ProductList>
+              <CheckoutTotal>
+                <div>
+                  <span>Total de Itens</span>
+                  <span>R$ 29,70</span>
+                </div>
+                <div>
+                  <span>Entrega</span>
+                  <span>R$ 3,50</span>
+                </div>
+                <div>
+                  <span>Total</span>
+                  <span>R$ 33,20</span>
+                </div>
+              </CheckoutTotal>
+              <SubmitButton type="submit">Confirmar Pedido</SubmitButton>
+            </CheckoutItensBox>
+          </SideContent>
+        </CheckoutContainer>
+      </FormProvider>
+    </form>
   )
 }

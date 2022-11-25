@@ -1,5 +1,8 @@
 import { createContext, ReactNode, useReducer, useState } from 'react'
-import { addNewItemAction } from '../reducers/Cart/Actions'
+import {
+  addNewItemAction,
+  updateItemQuantityAction,
+} from '../reducers/Cart/actions'
 import { CartItem, cartReducer } from '../reducers/Cart/reducer'
 
 export interface CartContextProviderProps {
@@ -11,6 +14,7 @@ export interface CartContextProviderData {
   deliveryTax: number
   cartNumberItem: number
   addNewItemOnCart: (item: CartItem) => void
+  updateItemQuantityOnCart: (id: string, quantity: number) => void
 }
 
 export const CartContext = createContext({} as CartContextProviderData)
@@ -26,6 +30,10 @@ export function CartContextProvider({ children }: CartContextProviderProps) {
     dispatch(addNewItemAction(item))
   }
 
+  function updateItemQuantityOnCart(id: string, quantity: number) {
+    dispatch(updateItemQuantityAction(id, quantity))
+  }
+
   return (
     <CartContext.Provider
       value={{
@@ -33,6 +41,7 @@ export function CartContextProvider({ children }: CartContextProviderProps) {
         deliveryTax: cartState.deliveryTax,
         cartNumberItem: cartState.cartNumberItem,
         addNewItemOnCart,
+        updateItemQuantityOnCart,
       }}
     >
       {children}
