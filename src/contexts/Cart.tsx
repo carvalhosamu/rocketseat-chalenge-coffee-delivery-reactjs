@@ -8,6 +8,7 @@ import {
 import {
   addNewItemAction,
   deleteItemQuantityAction,
+  resetCartAction,
   updateItemQuantityAction,
 } from '../reducers/Cart/actions'
 import { CartItem, cartReducer } from '../reducers/Cart/reducer'
@@ -24,6 +25,7 @@ export interface CartContextProviderData {
   addNewItemOnCart: (item: CartItem) => void
   updateItemQuantityOnCart: (id: string, quantity: number) => void
   removeItemOnCart: (id: string) => void
+  resetCart: () => void
 }
 
 export const CartContext = createContext({} as CartContextProviderData)
@@ -61,6 +63,10 @@ export function CartContextProvider({ children }: CartContextProviderProps) {
     dispatch(deleteItemQuantityAction(id))
   }
 
+  function resetCart() {
+    dispatch(resetCartAction())
+  }
+
   useEffect(() => {
     const stateJSON = JSON.stringify(cartState)
     localStorage.setItem(localStorageKey, stateJSON)
@@ -76,6 +82,7 @@ export function CartContextProvider({ children }: CartContextProviderProps) {
         addNewItemOnCart,
         updateItemQuantityOnCart,
         removeItemOnCart,
+        resetCart,
       }}
     >
       {children}

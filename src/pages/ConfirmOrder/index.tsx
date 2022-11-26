@@ -10,14 +10,18 @@ import {
 import deliveryIllustration from '../../assets/IllustrationConfirmOrder.png'
 import { CurrencyDollar, MapPin, Timer } from 'phosphor-react'
 import { useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 
 import history from 'history/browser'
+import { CartContext } from '../../contexts/Cart'
 
 export function ConfirmOrder() {
   const location = useLocation()
+  const { resetCart } = useContext(CartContext)
 
-  console.log(location.state)
+  useEffect(() => {
+    resetCart()
+  }, [resetCart])
 
   return (
     <ConfirmOrderContainer>

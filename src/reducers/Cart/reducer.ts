@@ -71,6 +71,13 @@ export function cartReducer(state: CartState, action: any): CartState {
         draft.totalValue = totalValue
         draft.cartNumberItem = quantity
       })
+    case ActionTypes.RESET_CART:
+      return produce(state, (draft) => {
+        draft.itens = []
+        const { quantity, totalValue } = getTotalValueProducts(draft.itens)
+        draft.totalValue = totalValue
+        draft.cartNumberItem = quantity
+      })
   }
 
   return state
