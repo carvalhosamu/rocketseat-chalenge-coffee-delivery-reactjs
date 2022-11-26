@@ -30,14 +30,17 @@ export function SelectedCoffe({ product }: SelectedCoffeProps) {
   })
 
   const { watch } = cartProductForm
-  const { updateItemQuantityOnCart } = useContext(CartContext)
+  const { updateItemQuantityOnCart, removeItemOnCart } = useContext(CartContext)
 
   const cartCount = watch('cartCount')
 
   useEffect(() => {
-    console.log(cartCount)
     updateItemQuantityOnCart(product.id, cartCount)
   }, [cartCount, product.id, updateItemQuantityOnCart])
+
+  function handleDeleteCoffee() {
+    removeItemOnCart(product.id)
+  }
 
   return (
     <ProductContainer>
@@ -49,7 +52,7 @@ export function SelectedCoffe({ product }: SelectedCoffeProps) {
               <h5>{product.name}</h5>
               <ProductActions>
                 <NumberInput readOnly={true} name="cartCount" />
-                <RemoveButton>
+                <RemoveButton type="button" onClick={handleDeleteCoffee}>
                   <Trash size={16} />
                   Remover
                 </RemoveButton>

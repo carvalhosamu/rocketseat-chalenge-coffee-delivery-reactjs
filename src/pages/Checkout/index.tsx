@@ -33,7 +33,7 @@ import { PaymentOptions, PaymentType } from './components/PaymentOptions'
 import { CheckoutRequestModel } from './models'
 
 export function Checkout() {
-  const { itens } = useContext(CartContext)
+  const { itens, deliveryTax, cartTotalValue } = useContext(CartContext)
   const adressFormValidationSchema = zod.object({
     zipCode: zod
       .string({ required_error: 'O campo é obrigatório' })
@@ -92,6 +92,7 @@ export function Checkout() {
   function handleChangePaymentMethod(type: PaymentType) {
     setPaymentType(type)
   }
+  const totaRequestCheckout = deliveryTax + cartTotalValue
 
   return (
     <form onSubmit={handleSubmit(handleCreateNewRequest)}>
@@ -134,15 +135,30 @@ export function Checkout() {
               <CheckoutTotal>
                 <div>
                   <span>Total de Itens</span>
-                  <span>R$ 29,70</span>
+                  <span>
+                    R${' '}
+                    {cartTotalValue.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
                 </div>
                 <div>
                   <span>Entrega</span>
-                  <span>R$ 3,50</span>
+                  <span>
+                    R${' '}
+                    {deliveryTax.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
                 </div>
                 <div>
                   <span>Total</span>
-                  <span>R$ 33,20</span>
+                  <span>
+                    R${' '}
+                    {totaRequestCheckout.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                    })}
+                  </span>
                 </div>
               </CheckoutTotal>
               <SubmitButton type="submit">Confirmar Pedido</SubmitButton>

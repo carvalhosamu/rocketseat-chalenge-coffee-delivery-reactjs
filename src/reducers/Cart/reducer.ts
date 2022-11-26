@@ -13,13 +13,20 @@ interface CartState {
   itens: CartItem[]
   cartNumberItem: number
   deliveryTax: number
+  totalValue: number
 }
 
 export function cartReducer(state: CartState, action: any): CartState {
-  function updateCountProducts(itens: CartItem[]): number {
-    return itens.reduce((sumValue, value) => {
-      return sumValue + value.quantity
-    }, 0)
+  function getTotalValueProducts(itens: CartItem[]): any {
+    return itens.reduce(
+      (sumValue, value) => {
+        return {
+          quantity: sumValue.quantity + value.quantity,
+          totalValue: sumValue.totalValue + value.quantity * value.price,
+        }
+      },
+      { quantity: 0, totalValue: 0 },
+    )
   }
 
   switch (action.type) {
@@ -33,7 +40,9 @@ export function cartReducer(state: CartState, action: any): CartState {
         } else {
           draft.itens[itemIndex].quantity += action.payload.newItem.quantity
         }
-        draft.cartNumberItem = updateCountProducts(draft.itens)
+        const { quantity, totalValue } = getTotalValueProducts(draft.itens)
+        draft.totalValue = totalValue
+        draft.cartNumberItem = quantity
       })
     }
     case ActionTypes.UPDATE_ITEM_QUANTITY_CART:
@@ -48,10 +57,21 @@ export function cartReducer(state: CartState, action: any): CartState {
         } else {
           draft.itens[indexProduct].quantity = action.payload.quantity
         }
-        draft.cartNumberItem = updateCountProducts(draft.itens)
+        const { quantity, totalValue } = getTotalValueProducts(draft.itens)
+        draft.totalValue = totalValue
+        draft.cartNumberItem = quantity
+      })
+    case ActionTypes.DELETE_ITEM_CART:
+      return produce(state, (draft) => {
+        const indexProduct = draft.itens.findIndex(
+          (item) => item.id === action.payload.id,
+        )
+        if (indexProduct >= 0) draft.itens.splice(indexProduct, 1)
+        const { quantity, totalValue } = getTotalValueProducts(draft.itens)
+        draft.totalValue = totalValue
+        draft.cartNumberItem = quantity
       })
   }
 
   return state
 }
-/*  */

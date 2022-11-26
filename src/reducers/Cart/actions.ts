@@ -24,3 +24,12 @@ export function updateItemQuantityAction(id: string, quantity: number) {
     },
   }
 }
+
+export function deleteItemQuantityAction(id: string) {
+  return {
+    type: ActionTypes.DELETE_ITEM_CART,
+    payload: {
+      id,
+    },
+  }
+}
